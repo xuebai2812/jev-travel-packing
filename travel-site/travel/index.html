@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f2f5">
+  <meta name="description" content="告诉我们去哪儿、待几天，让 Jev 帮你挑出旅行该带的东西。">
+  <title>带什么 · 下一站，轻装出发</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23ed6c3b'/%3E%3Ctext x='20' y='28' text-anchor='middle' font-size='26'%3E✳%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/travel/style.css">
+  <script src="/travel/matter.min.js"></script>
+  <script src="/travel/app.mjs" type="module"></script>
+</head>
+<body>
+  <svg class="svg-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M6 7h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2ZM9 10v8m6-8v8"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-plane" viewBox="0 0 24 24"><path d="m21 3-7 18-4-7-7-4L21 3ZM10 14 21 3"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3c4 0 8 10 12 10h3M3 17h3c2 0 4-3 6-5m2-3c1-1 3-2 4-2h3m-4-4 4 4-4 4m0 2 4 4-4 4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><path d="M8 8h12v13H8zM16 8V3H3v13h5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-11v1"/></symbol>
+  </defs></svg>
+
+  <nav class="corner-tools" aria-label="页面操作">
+    <button class="quiet-button" id="shuffleButton" aria-label="抖一抖物品" title="抖一抖"><svg class="icon" aria-hidden="true"><use href="#i-shuffle"/></svg></button>
+    <button class="quiet-button" id="howButton" aria-label="怎么玩" title="怎么玩"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg></button>
+    <button class="packing-button" id="packingButton" aria-label="我的行李清单"><svg class="icon" aria-hidden="true"><use href="#i-bag"/></svg><span>清单</span><span id="navCount">0</span></button>
+  </nav>
+
+  <main>
+    <section class="trip-composer" aria-labelledby="mainTitle">
+      <h1 id="mainTitle" class="sr-only">旅行带什么</h1>
+      <form id="tripForm" class="trip-form" autocomplete="off">
+        <label class="sr-only" for="tripInput">旅行目的地、时长和偏好</label>
+        <input id="tripInput" name="trip" type="text" maxlength="500" placeholder="去哪里，待几天？" aria-describedby="inputHint statusText" spellcheck="false" enterkeyhint="go">
+        <span class="input-spinner" aria-hidden="true"></span>
+        <button class="clear-button" id="clearButton" type="button" aria-label="清空行程" hidden><svg class="icon"><use href="#i-close"/></svg></button>
+        <button class="sr-only" id="goButton" type="submit" tabindex="-1" aria-label="整理这趟旅行的行李">整理行李</button>
+      </form>
+      <p class="sr-only" id="inputHint">输入目的地和时长，停顿后自动整理；回车立即整理。也可以补充月份和活动。</p>
+      <div class="trip-examples" aria-label="试试这些旅行">
+        <button data-trip="去冰岛 7 天，想自驾追极光"><span>🏔️</span> 冰岛追极光 <span class="example-days">7 天</span></button>
+        <button data-trip="去三亚 5 天，在海边度假游泳"><span>🏖️</span> 三亚躺一躺 <span class="example-days">5 天</span></button>
+        <button data-trip="去京都 3 天，逛街和城市漫步"><span>⛩️</span> 京都慢慢逛 <span class="example-days">3 天</span></button>
+      </div>
+    </section>
+
+    <section class="packing-playground" aria-label="旅行物品互动区">
+      <div class="selection-caption idle" id="selectionCaption">
+        <div class="selection-line"><span class="status-dot" id="statusDot"></span><p id="statusText" role="status" aria-live="polite">下一趟旅行，会带上哪些小东西？</p><button id="retryButton" class="retry-button" hidden>再试一次</button></div>
+        <p class="selection-detail" id="selectionDetail">输入行程，看看它们自己找到位置。</p>
+      </div>
+      <div class="world" id="playground" aria-label="点击物品加入或移出清单，拖动可玩耍"></div>
+    </section>
+  </main>
+
+  <dialog id="packDialog" class="packing-drawer" aria-labelledby="packTitle">
+    <div class="drawer-heading"><div><span class="drawer-eyebrow">YOUR PACKING LIST</span><h2 id="packTitle">这次，就带这些。</h2></div><button class="icon-button" id="closePack" aria-label="关闭行李清单"><svg class="icon"><use href="#i-close"/></svg></button></div>
+    <p class="drawer-trip" id="drawerTrip">等一个目的地，也等一个出发的理由。</p>
+    <div class="packing-progress"><span id="progressText">0 / 0 件已装好</span><button id="uncheckButton" class="text-button" hidden>取消全部勾选</button><div class="progress-track"><div id="progressFill"></div></div></div>
+    <div class="packing-list" id="packingList"></div>
+    <div class="drawer-bottom"><p id="listNote">推荐只做打包参考，可按自己的需要增减。</p><button id="copyButton" class="copy-button" disabled><svg class="icon"><use href="#i-copy"/></svg><span>复制打包清单</span></button></div>
+  </dialog>
+
+  <dialog id="aboutDialog" class="about-dialog" aria-labelledby="aboutTitle">
+    <button class="icon-button about-close" id="closeAbout" aria-label="关闭玩法说明"><svg class="icon"><use href="#i-close"/></svg></button>
+    <span class="about-emoji" aria-hidden="true">🧳</span><span class="drawer-eyebrow">A LITTLE HELP BEFORE YOU GO</span>
+    <h2 id="aboutTitle">行李刚刚好，<br>旅行轻一点。</h2>
+    <p>输入目的地和时长，停顿片刻，Jev 就会从下面的物品中挑选这趟旅行适合带上的东西。也可以加上月份、活动，或写下“不带什么”。</p>
+    <p>点一下物品，加入或移出清单；拖一拖，让行李动起来。打开「我的行李」，装好一件就勾掉一件。</p>
+    <div class="about-note">未注明月份时按当前月份考虑。这里没有接入实时天气；出发前请再核对天气和自己的实际需要。行程文本会发送给 Jev 进行判断。</div>
+    <p class="connection-note"><span id="connectionDot" class="connection-dot"></span><span id="connectionText">正在连接 Jev</span></p>
+    <button id="understoodButton" class="copy-button">准备好出发了 <svg class="icon"><use href="#i-arrow"/></svg></button>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

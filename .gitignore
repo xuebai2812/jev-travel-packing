@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+.sites-runtime/
+travel-site/.git/
+travel-site/dist/
+results/
+*.tar.gz
+*.tgz

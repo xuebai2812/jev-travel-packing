@@ -1,0 +1,12 @@
+{
+  "name": "xianwai-jev-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test test-server.mjs test-packing.mjs test-travel-ui.mjs test-game.mjs test-travel-physics.mjs"
+  },
+  "dependencies": {
+    "matter-js": "^0.20.0"
+  }
+}
