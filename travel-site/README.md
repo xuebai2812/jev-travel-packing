@@ -1,8 +1,7 @@
 # 带什么 · 旅行打包
 
-This checkout publishes the travel app from the parent workspace. It contains only
-the travel interface, Matter.js, and the Jev packing API. The local chat demo is
-not part of this Site.
+This directory contains the hosted travel packing app: the travel interface,
+Matter.js animations, and the Jev packing API.
 
 Run `npm test` to check the hosted HTTPS adapter and `npm run build` to generate
 `dist/server/index.js`. The Worker bundles an explicit public-asset allowlist and
